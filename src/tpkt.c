@@ -53,7 +53,7 @@ static int tpkt_destroy(struct tpkt_packet *pkt)
 }
 
 
-static int tpkt_new(struct tpkt_packet **ret_obj)
+static int tpkt_create(struct tpkt_packet **ret_obj)
 {
 	int res = 0;
 	struct tpkt_packet *pkt;
@@ -75,6 +75,27 @@ static int tpkt_new(struct tpkt_packet **ret_obj)
 }
 
 
+int tpkt_new(size_t cap, struct tpkt_packet **ret_obj)
+{
+	int res;
+	struct tpkt_packet *pkt;
+
+	res = tpkt_create(&pkt);
+	if (res < 0)
+		return res;
+
+	pkt->buf = pomp_buffer_new(cap);
+	if (!pkt->buf) {
+		tpkt_destroy(pkt);
+		return -ENOMEM;
+	}
+
+	*ret_obj = pkt;
+
+	return 0;
+}
+
+
 int tpkt_new_from_buffer(struct pomp_buffer *buf, struct tpkt_packet **ret_obj)
 {
 	int res;
@@ -83,7 +104,7 @@ int tpkt_new_from_buffer(struct pomp_buffer *buf, struct tpkt_packet **ret_obj)
 	ULOG_ERRNO_RETURN_ERR_IF(buf == NULL, EINVAL);
 	ULOG_ERRNO_RETURN_ERR_IF(ret_obj == NULL, EINVAL);
 
-	res = tpkt_new(ret_obj);
+	res = tpkt_create(ret_obj);
 	if (res < 0)
 		return res;
 	pkt = *ret_obj;
@@ -105,7 +126,7 @@ int tpkt_new_from_data(void *data, size_t cap, struct tpkt_packet **ret_obj)
 	ULOG_ERRNO_RETURN_ERR_IF(cap == 0, EINVAL);
 	ULOG_ERRNO_RETURN_ERR_IF(ret_obj == NULL, EINVAL);
 
-	res = tpkt_new(ret_obj);
+	res = tpkt_create(ret_obj);
 	if (res < 0)
 		return res;
 	pkt = *ret_obj;
@@ -128,7 +149,7 @@ int tpkt_new_from_cdata(const void *data,
 	ULOG_ERRNO_RETURN_ERR_IF(cap == 0, EINVAL);
 	ULOG_ERRNO_RETURN_ERR_IF(ret_obj == NULL, EINVAL);
 
-	res = tpkt_new(ret_obj);
+	res = tpkt_create(ret_obj);
 	if (res < 0)
 		return res;
 	pkt = *ret_obj;
@@ -136,6 +157,33 @@ int tpkt_new_from_cdata(const void *data,
 	pkt->data.cdata = data;
 	pkt->data.cap = cap;
 	pkt->data.cst = 1;
+
+	return 0;
+}
+
+
+int tpkt_new_with_data(const void *data,
+		       size_t cap,
+		       struct tpkt_packet **ret_obj)
+{
+	int res;
+	struct tpkt_packet *pkt;
+
+	ULOG_ERRNO_RETURN_ERR_IF(data == NULL, EINVAL);
+	ULOG_ERRNO_RETURN_ERR_IF(cap == 0, EINVAL);
+	ULOG_ERRNO_RETURN_ERR_IF(ret_obj == NULL, EINVAL);
+
+	res = tpkt_create(&pkt);
+	if (res < 0)
+		return res;
+
+	pkt->buf = pomp_buffer_new_with_data(data, cap);
+	if (!pkt->buf) {
+		tpkt_destroy(pkt);
+		return -ENOMEM;
+	}
+
+	*ret_obj = pkt;
 
 	return 0;
 }
@@ -149,7 +197,7 @@ int tpkt_clone(struct tpkt_packet *pkt, struct tpkt_packet **ret_obj)
 	ULOG_ERRNO_RETURN_ERR_IF(pkt == NULL, EINVAL);
 	ULOG_ERRNO_RETURN_ERR_IF(ret_obj == NULL, EINVAL);
 
-	res = tpkt_new(ret_obj);
+	res = tpkt_create(ret_obj);
 	if (res < 0)
 		return res;
 	new_pkt = *ret_obj;

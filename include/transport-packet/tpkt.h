@@ -71,6 +71,20 @@ struct tpkt_list;
  */
 
 /**
+ * Create a packet.
+ * A packet is created with a reference count of 1. When no longer needed,
+ * the packet must be unreferenced using the tpkt_unref() function.
+ * When a packet is no longer referenced it is destroyed.
+ * The packet will be associated to a pomp_buffer.
+ * The created packet object is returned through the ret_obj parameter.
+ * @param cap: internal buffer capacity in bytes
+ * @param ret_obj: pointer to the created packet object pointer (output)
+ * @return 0 on success, negative errno value in case of error
+ */
+TPKT_API int tpkt_new(size_t cap, struct tpkt_packet **ret_obj);
+
+
+/**
  * Create a packet from a buffer.
  * A packet is created with a reference count of 1. When no longer needed,
  * the packet must be unreferenced using the tpkt_unref() function.
@@ -113,6 +127,21 @@ tpkt_new_from_data(void *data, size_t cap, struct tpkt_packet **ret_obj);
  */
 TPKT_API int
 tpkt_new_from_cdata(const void *data, size_t cap, struct tpkt_packet **ret_obj);
+
+
+/**
+ * Create a packet from existing data, copying them in a pomp buffer.
+ * A packet is created with a reference count of 1. When no longer needed,
+ * the packet must be unreferenced using the tpkt_unref() function.
+ * When a packet is no longer referenced it is destroyed.
+ * The created packet object is returned through the ret_obj parameter.
+ * @param data: pointer on the data
+ * @param cap: data buffer capacity in bytes
+ * @param ret_obj: pointer to the created packet object pointer (output)
+ * @return 0 on success, negative errno value in case of error
+ */
+TPKT_API int
+tpkt_new_with_data(const void *data, size_t cap, struct tpkt_packet **ret_obj);
 
 
 /**
