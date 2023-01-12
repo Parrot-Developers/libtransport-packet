@@ -343,13 +343,20 @@ TPKT_API int tpkt_set_timestamp(struct tpkt_packet *pkt, uint64_t ts);
 TPKT_API void *tpkt_get_user_data(struct tpkt_packet *pkt);
 
 
+typedef void (*tpkt_user_data_release_t)(struct tpkt_packet *pkt,
+					 void *userdata);
+
+
 /**
  * Set the packet user data.
  * @param pkt: packet object handle
+ * @param release: optional user_data release callback
  * @param user_data: user_data to be set
  * @return 0 on success, negative errno value in case of error
  */
-TPKT_API int tpkt_set_user_data(struct tpkt_packet *pkt, void *user_data);
+TPKT_API int tpkt_set_user_data(struct tpkt_packet *pkt,
+				tpkt_user_data_release_t release,
+				void *user_data);
 
 
 /**
@@ -377,6 +384,34 @@ TPKT_API int tpkt_get_priority(struct tpkt_packet *pkt);
  * @return 0 on success, negative errno value in case of error
  */
 TPKT_API int tpkt_set_priority(struct tpkt_packet *pkt, int priority);
+
+
+/**
+ * Get the packet importance.
+ * The importance value is a positive number between 0 (max value)
+ * and UINT32_MAX (lowest importance).
+ *   value      importance
+ *   0          highest
+ *   UINT32_MAX lowest
+ * @param pkt: packet object handle
+ * @param importance: pointer on the data (output)
+ * @return 0 on success, negative errno value in case of error
+ */
+TPKT_API int tpkt_get_importance(struct tpkt_packet *pkt, uint32_t *importance);
+
+
+/**
+ * Set the packet importance.
+ * The importance value is a positive number between 0 (max value)
+ * and UINT32_MAX (lowest importance).
+ *   value      importance
+ *   0          highest
+ *   UINT32_MAX lowest
+ * @param pkt: packet object handle
+ * @param importance: importance to be set
+ * @return 0 on success, negative errno value in case of error
+ */
+TPKT_API int tpkt_set_importance(struct tpkt_packet *pkt, uint32_t importance);
 
 
 /**

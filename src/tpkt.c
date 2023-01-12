@@ -36,6 +36,9 @@ static int tpkt_destroy(struct tpkt_packet *pkt)
 	if (pkt == NULL)
 		return 0;
 
+	if (pkt->user_data.release != NULL)
+		pkt->user_data.release(pkt, pkt->user_data.data);
+
 	ref = tpkt_get_ref_count(pkt);
 	if (ref > 0)
 		ULOGW("%s: ref count is not null! (%d)", __func__, ref);
@@ -531,19 +534,42 @@ int tpkt_set_priority(struct tpkt_packet *pkt, int priority)
 }
 
 
-void *tpkt_get_user_data(struct tpkt_packet *pkt)
+int tpkt_get_importance(struct tpkt_packet *pkt, uint32_t *importance)
 {
-	ULOG_ERRNO_RETURN_VAL_IF(pkt == NULL, EINVAL, NULL);
+	ULOG_ERRNO_RETURN_ERR_IF(pkt == NULL, EINVAL);
+	ULOG_ERRNO_RETURN_ERR_IF(importance == NULL, EINVAL);
 
-	return pkt->user_data;
+	*importance = pkt->importance;
+	return 0;
 }
 
 
-int tpkt_set_user_data(struct tpkt_packet *pkt, void *user_data)
+int tpkt_set_importance(struct tpkt_packet *pkt, uint32_t importance)
 {
 	ULOG_ERRNO_RETURN_ERR_IF(pkt == NULL, EINVAL);
 	ULOG_ERRNO_RETURN_ERR_IF(tpkt_get_ref_count(pkt) > 1, EPERM);
 
-	pkt->user_data = user_data;
+	pkt->importance = importance;
+	return 0;
+}
+
+
+void *tpkt_get_user_data(struct tpkt_packet *pkt)
+{
+	ULOG_ERRNO_RETURN_VAL_IF(pkt == NULL, EINVAL, NULL);
+
+	return pkt->user_data.data;
+}
+
+
+int tpkt_set_user_data(struct tpkt_packet *pkt,
+		       tpkt_user_data_release_t release,
+		       void *user_data)
+{
+	ULOG_ERRNO_RETURN_ERR_IF(pkt == NULL, EINVAL);
+	ULOG_ERRNO_RETURN_ERR_IF(tpkt_get_ref_count(pkt) > 1, EPERM);
+
+	pkt->user_data.release = release;
+	pkt->user_data.data = user_data;
 	return 0;
 }

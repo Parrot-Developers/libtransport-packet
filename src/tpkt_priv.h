@@ -91,8 +91,14 @@ struct tpkt_packet {
 	/* QoS priority */
 	uint8_t priority;
 
+	/* Importance of the packet (low numbers are more important) */
+	uint32_t importance;
+
 	/* User data */
-	void *user_data;
+	struct {
+		tpkt_user_data_release_t release;
+		void *data;
+	} user_data;
 };
 
 
