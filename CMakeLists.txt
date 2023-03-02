@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
 project(transport-packet VERSION 1.0)
 
-if(COMMAND set_up_rpath)
-    set_up_rpath()
-else()
-    message("Set up rpath not defined!")
-endif()
-
 set(LIB_SOURCES
       src/tpkt.c
       src/tpkt_list.c
 )
 
 add_library(${PROJECT_NAME} ${LIB_SOURCES})
+
+if(COMMAND set_up_rpath)
+    set_up_rpath()
+else()
+    message("Set up rpath not defined!")
+endif()
+
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 set_target_properties(transport-packet PROPERTIES
