@@ -492,7 +492,15 @@ struct sockaddr_in *tpkt_get_addr(struct tpkt_packet *pkt)
 {
 	ULOG_ERRNO_RETURN_VAL_IF(pkt == NULL, EINVAL, NULL);
 
-	return &pkt->addr;
+	return &pkt->addr.in;
+}
+
+
+struct sockaddr_in6 *tpkt_get_addr6(struct tpkt_packet *pkt)
+{
+	ULOG_ERRNO_RETURN_VAL_IF(pkt == NULL, EINVAL, NULL);
+
+	return &pkt->addr.in6;
 }
 
 

@@ -33,6 +33,8 @@
 
 #ifdef _WIN32
 #	include <winsock2.h>
+#	include <ws2tcpip.h>
+#	include <ws2ipdef.h>
 #else /* !_WIN32 */
 #	include <arpa/inet.h>
 #	include <sys/socket.h>
@@ -299,7 +301,7 @@ TPKT_API int tpkt_get_iov_write(struct tpkt_packet *pkt,
 
 
 /**
- * Get a pointer on the associated address.
+ * Get a pointer on the associated IPv4 address.
  * When sending a packet, the value should be set before writing the packet.
  * When receiving a packet, the value should be read after reading the packet.
  * The returned pointer has the lifetime of the packet object; it must not
@@ -308,6 +310,18 @@ TPKT_API int tpkt_get_iov_write(struct tpkt_packet *pkt,
  * @return a pointer on the address structure on success, NULL in case of error
  */
 TPKT_API struct sockaddr_in *tpkt_get_addr(struct tpkt_packet *pkt);
+
+
+/**
+ * Get a pointer on the associated IPv6 address.
+ * When sending a packet, the value should be set before writing the packet.
+ * When receiving a packet, the value should be read after reading the packet.
+ * The returned pointer has the lifetime of the packet object; it must not
+ * be freed.
+ * @param pkt: packet object handle
+ * @return a pointer on the address structure on success, NULL in case of error
+ */
+TPKT_API struct sockaddr_in6 *tpkt_get_addr6(struct tpkt_packet *pkt);
 
 
 /**

@@ -79,7 +79,10 @@ struct tpkt_packet {
 
 	/* Peer address (write: filled by the caller;
 	 * read: filled by the library) */
-	struct sockaddr_in addr;
+	union {
+		struct sockaddr_in in;
+		struct sockaddr_in6 in6;
+	} addr;
 
 	/* Packet timestamp in microseconds on the monotonic clock
 	 * (write: packet send timestamp; read: packet receive timestamp) */
